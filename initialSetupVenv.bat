@@ -14,6 +14,8 @@ call env\Scripts\activate
 pip install -r requirements.txt
 @echo ####################
 @echo Finished setup, dropping into command prompt.
+@echo I reccommend setting up database using, if it hasn't been initialised yet.
+@echo python initialise_db.py
 @echo INFO: This prompt is running in the virtual environment.
 @echo ####################
 @pause
