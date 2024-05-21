@@ -8,45 +8,45 @@ from sqlalchemy import asc, text
 from . import db
 import os
 
-main = Blueprint('main', __name__)
+main = Blueprint('main', __name__) # Blueprint created with the name of the script.
 
 # This is called when the home page is rendered. It fetches all images sorted by filename.
-@main.route('/')
+@main.route('/') # Homepage
 def homepage():
-  photos = db.session.query(Photo).order_by(asc(Photo.file))
-  return render_template('index.html', photos = photos)
+  photos = db.session.query(Photo).order_by(asc(Photo.file)) # using default session query the database and sort by filename
+  return render_template('index.html', photos = photos) # using the html index, passes the photots to the template
 
-@main.route('/uploads/<name>')
-def display_file(name):
-  return send_from_directory(current_app.config["UPLOAD_DIR"], name)
+@main.route('/uploads/<name>') # uploads folder and file, used to access uploaded files
+def display_file(name): # Binds the name from the url to paramater
+  return send_from_directory(current_app.config["UPLOAD_DIR"], name) # STD flask function to access file in a directory, TODO `~werkzeug.security.safe_join`
 
 # Upload a new photo
-@main.route('/upload/', methods=['GET','POST'])
+@main.route('/upload/', methods=['GET','POST']) # Base of the uploads directory, GET the interface or POST an upload
 def newPhoto():
-  if request.method == 'POST':
+  if request.method == 'POST': # Logic for POSTing an image
     file = None
-    if "fileToUpload" in request.files:
-      file = request.files.get("fileToUpload")
+    if "fileToUpload" in request.files: # Grab a named field
+      file = request.files.get("fileToUpload") # caste the field to a file
     else:
-      flash("Invalid request!", "error")
+      flash("Invalid request!", "error") # If there is no field popup an error
 
     if not file or not file.filename:
-      flash("No file selected!", "error")
-      return redirect(request.url)
+      flash("No file selected!", "error") # If the file isn't a file popup error
+      return redirect(request.url) # Redirect TODO this redirects on user input
 
-    filepath = os.path.join(current_app.config["UPLOAD_DIR"], file.filename)
-    file.save(filepath)
+    filepath = os.path.join(current_app.config["UPLOAD_DIR"], file.filename) # Creates filepath by combing configured path and the filename
+    file.save(filepath) # Saves the file TODO secure_filename?
 
-    newPhoto = Photo(name = request.form['user'], 
+    newPhoto = Photo(name = request.form['user'], # Constructing an SQL element
                     caption = request.form['caption'],
                     description = request.form['description'],
-                    file = file.filename)
-    db.session.add(newPhoto)
-    flash('New Photo %s Successfully Created' % newPhoto.name)
+                    file = file.filename) # TODO investigate for vulnerability, can a filename be used for SQL injection
+    db.session.add(newPhoto) # Add the element to the database
+    flash('New Photo %s Successfully Created' % newPhoto.name) # TODO invstigate for CSS
     db.session.commit()
-    return redirect(url_for('main.homepage'))
-  else:
-    return render_template('upload.html')
+    return redirect(url_for('main.homepage')) # Return to homepage
+  else: # Logic for GETing the page
+    return render_template('upload.html') # Load the "template" html with void params
 
 # This is called when clicking on Edit. Goes to the edit page.
 @main.route('/photo/<int:photo_id>/edit/', methods = ['GET', 'POST'])
@@ -62,7 +62,7 @@ def editPhoto(photo_id):
       flash('Photo Successfully Edited %s' % editedPhoto.name)
       return redirect(url_for('main.homepage'))
   else:
-    return render_template('edit.html', photo = editedPhoto)
+    return render_template('edit.html', photo = editedPhoto) # if Get use edit template with photo
 
 
 # This is called when clicking on Delete. 
