@@ -9,7 +9,7 @@ db = SQLAlchemy()
 def create_app():
     app = Flask(__name__) # Flask app created
 
-    app.config['SECRET_KEY'] = 'secret-key-do-not-reveal' # Secret key set Used in(session management, CSRF protection)
+    app.config['SECRET_KEY'] = 'secret-key-do-not-reveal' # TODO this shouldn't be here ...Secret key set Used in(session management, CSRF protection)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///photos.db' # String for URI to connect to the database
     CWD = Path(os.path.dirname(__file__)) # Works out the current working directory the script is run from
     app.config['UPLOAD_DIR'] = CWD / "uploads" # Configures the path to the directory where files are uploaded
