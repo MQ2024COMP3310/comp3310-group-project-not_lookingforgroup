@@ -49,16 +49,16 @@ def newPhoto():
     return render_template('upload.html') # Load the "template" html with void params
 
 # This is called when clicking on Edit. Goes to the edit page.
-@main.route('/photo/<int:photo_id>/edit/', methods = ['GET', 'POST'])
+@main.route('/photo/<int:photo_id>/edit/', methods = ['GET', 'POST']) # Base of the photo directory, GET the interface or POST an edit
 def editPhoto(photo_id):
-  editedPhoto = db.session.query(Photo).filter_by(id = photo_id).one()
-  if request.method == 'POST':
-    if request.form['user']:
+  editedPhoto = db.session.query(Photo).filter_by(id = photo_id).one() # retrieve the photo from db
+  if request.method == 'POST': # If data is being sent to the webserver
+    if request.form['user']: # If the user field is not empty process post
       editedPhoto.name = request.form['user']
       editedPhoto.caption = request.form['caption']
       editedPhoto.description = request.form['description']
       db.session.add(editedPhoto)
-      db.session.commit()
+      db.session.commit() # same id so likely overwrites
       flash('Photo Successfully Edited %s' % editedPhoto.name)
       return redirect(url_for('main.homepage'))
   else:
@@ -66,15 +66,15 @@ def editPhoto(photo_id):
 
 
 # This is called when clicking on Delete. 
-@main.route('/photo/<int:photo_id>/delete/', methods = ['GET','POST'])
+@main.route('/photo/<int:photo_id>/delete/', methods = ['GET','POST']) # No gaurds for GET or POST, accessing the page triggers the logic.
 def deletePhoto(photo_id):
-  fileResults = db.session.execute(text('select file from photo where id = ' + str(photo_id)))
-  filename = fileResults.first()[0]
-  filepath = os.path.join(current_app.config["UPLOAD_DIR"], filename)
-  os.unlink(filepath)
-  db.session.execute(text('delete from photo where id = ' + str(photo_id)))
+  fileResults = db.session.execute(text('select file from photo where id = ' + str(photo_id))) # Potential vulnerability TODO investigate
+  filename = fileResults.first()[0] # Potential out of bounds exception
+  filepath = os.path.join(current_app.config["UPLOAD_DIR"], filename) # COmpletes the filepath for the file serverside
+  os.unlink(filepath) # Soft delete the file
+  db.session.execute(text('delete from photo where id = ' + str(photo_id))) # Same potential vulnerability TODO
   db.session.commit()
   
-  flash('Photo id %s Successfully Deleted' % photo_id)
+  flash('Photo id %s Successfully Deleted' % photo_id) # Potential vulnerability TODO investigate cross site scripting
   return redirect(url_for('main.homepage'))
 
