@@ -3,7 +3,7 @@ from project.models import Photo
 
 def populate_db():
    
-    session = db.session()
+    session = db.session() # Session created as intermediary between the App and the database
 
     photo = Photo(name = 'William Warby', caption = 'Gentoo penguin', description = 'A penguin with an orange beak standing next to a rock.', file = 'william-warby-_A_vtMMRLWM.jpg') 
     session.add(photo)
@@ -49,10 +49,10 @@ def populate_db():
     session.add(photo)
     session.commit()
 
-if __name__ == '__main__':
-  app = create_app()
-  with app.app_context():
-    db.drop_all()
-    db.create_all()
-    populate_db()
+if __name__ == '__main__': # Checks that this script is being run directly
+  app = create_app() # Singleton pattern, creates flask app
+  with app.app_context(): # Context established, makes some global variables point here
+    db.drop_all() # Remove and delete all datastructures from database
+    db.create_all() # Create datastructures in the database
+    populate_db() # Add data to the database
 
