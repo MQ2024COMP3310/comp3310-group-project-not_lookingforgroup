@@ -8,6 +8,12 @@ from sqlalchemy import asc, text
 from . import db
 import os
 
+#########################
+##### Added
+#########################
+from werkzeug.exceptions import InternalServerError
+#########################
+
 main = Blueprint('main', __name__)
 
 # This is called when the home page is rendered. It fetches all images sorted by filename.
@@ -78,3 +84,14 @@ def deletePhoto(photo_id):
   flash('Photo id %s Successfully Deleted' % photo_id)
   return redirect(url_for('main.homepage'))
 
+#########################
+##### Added
+#########################
+
+# Catches all server errors, prevents stack trace generation.
+@main.errorhandler(Exception)
+def http_error_handler(e):
+  return redirect(url_for('main.homepage'))
+
+
+#########################
