@@ -10,3 +10,5 @@ call env\Scripts\activate
 echo off
 
 python run.py
+
+cmd -k
