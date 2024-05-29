@@ -91,6 +91,7 @@ def deletePhoto(photo_id):
 # Catches all server errors, prevents stack trace generation.
 @main.errorhandler(Exception)
 def http_error_handler(e):
+  print(e)  # TODO Replace with logger
   return redirect(url_for('main.homepage'))
 
 
