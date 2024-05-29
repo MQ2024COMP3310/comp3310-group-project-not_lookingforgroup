@@ -3,6 +3,7 @@ from flask import (
   flash, redirect, url_for, send_from_directory, 
   current_app, make_response
 )
+from flask_login import login_required, current_user
 from .models import Photo
 from sqlalchemy import asc, text
 from . import db
@@ -26,6 +27,7 @@ def homepage():
 def display_file(name):
   return send_from_directory(current_app.config["UPLOAD_DIR"], name)
 
+# TODO authorisation
 # Upload a new photo
 @main.route('/upload/', methods=['GET','POST'])
 def newPhoto():
@@ -54,6 +56,7 @@ def newPhoto():
   else:
     return render_template('upload.html')
 
+# TODO authorisation
 # This is called when clicking on Edit. Goes to the edit page.
 @main.route('/photo/<int:photo_id>/edit/', methods = ['GET', 'POST'])
 def editPhoto(photo_id):
@@ -70,7 +73,7 @@ def editPhoto(photo_id):
   else:
     return render_template('edit.html', photo = editedPhoto)
 
-
+# TODO authorisation
 # This is called when clicking on Delete. 
 @main.route('/photo/<int:photo_id>/delete/', methods = ['GET','POST'])
 def deletePhoto(photo_id):
@@ -87,6 +90,14 @@ def deletePhoto(photo_id):
 #########################
 ##### Added
 #########################
+
+# Stub for user only content.
+# Could display all photos uploaded by the user.
+@main.route('/profile')
+@login_required
+def profile():
+  return render_template('profile.html', name=current_user.name)
+
 
 # Catches all server errors, prevents stack trace generation.
 @main.errorhandler(Exception)
