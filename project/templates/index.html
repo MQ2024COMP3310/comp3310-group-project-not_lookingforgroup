@@ -58,6 +58,12 @@
                       <img src="{{ url_for('static', filename='icons/delete.png') }}" title="Delete this photo" alt="delete">
                   </div>
               </a>
+
+                <a href="{{ url_for('main.add_comment', photo_id=photo.id) }}" title="Comment on this photo">
+                    <div class="icon-container highlight blue comment">
+                        <img src="{{ url_for('comment', item_id=item_id) }}" title="Comment on this photo" alt="comment">
+                    </div>
+                </a>
             </div>
         </div>
     </div>

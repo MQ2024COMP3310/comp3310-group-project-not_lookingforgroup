@@ -4,7 +4,7 @@ from flask import (
   current_app, make_response
 )
 from flask_login import login_required, current_user
-from .models import Photo
+from .models import Photo, Comment
 from sqlalchemy import asc, text
 from . import db
 import os
@@ -13,9 +13,14 @@ import os
 ##### Added
 #########################
 from werkzeug.exceptions import InternalServerError
+from werkzeug.security import escape
+from flask_wtf.csrf import CSRFProtect
 #########################
 
 main = Blueprint('main', __name__)
+
+#Prevents CSRF attacks on the @main
+csrf = CSRFProtect(main)
 
 # This is called when the home page is rendered. It fetches all images sorted by filename.
 @main.route('/')
@@ -109,3 +114,24 @@ def http_error_handler(e):
 
 
 #########################
+####### Comments Feature
+#########################
+@main.route('/photo/<int:photo_id>/photo_detail')
+def photo_detail(item_id):
+  photo = Photo.query.get_or_404(item_id)
+  comments = Comment.query.filter_by(item_id=item_id).all()
+  return render_template('photo_detail.html', photo=photo, comments=comments)
+
+@main.route('/add_comment/<int:item_id>', method=['POST'])
+@login_required # Requires login authentication to perform action
+@csrf.exempt
+# TODO implement limiter
+def add_comment(item_id):
+  photo = Photo.query.get_or_404(item_id)
+  # Sanitises the form values for 'name' and 'content' using "escape"
+  name = escape(request.form.get('name')) 
+  content = escape(request.form.get('content'))
+  new_comment = Comment(name=name, content=content, photo=photo)
+  db.session.add(new_comment)
+  db.session.commit
+  return redirect(url_for('comment.html', item_id=item_id))

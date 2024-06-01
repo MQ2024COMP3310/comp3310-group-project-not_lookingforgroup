@@ -8,6 +8,7 @@ class Photo(db.Model):
     caption = db.Column(db.String(250), nullable=False)
     file = db.Column(db.String(250), nullable=False)
     description = db.Column(db.String(600), nullable=True)
+    comments = db.relationship('Comment', backref = 'item', lazy = True)
 
     @property
     def serialize(self):
@@ -19,10 +20,16 @@ class Photo(db.Model):
            'file'         : self.file,
            'desc'         : self.description,
        }
- 
- # Added model to store user data
- # TODO implement admin roles.
- # TODO implement a default user session
+    
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('item_id'), nullable=False)
+
+# Added model to store user data
+# TODO implement admin roles.
+# TODO implement a default user session
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100), unique=True)
