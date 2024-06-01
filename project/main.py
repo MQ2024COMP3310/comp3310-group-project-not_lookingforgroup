@@ -110,19 +110,16 @@ def http_error_handler(e):
   print(e)  # TODO Replace with logger
   return redirect(url_for('main.homepage'))
 
-
-
-
 #########################
 ####### Comments Feature
 #########################
-@main.route('/photo/<int:photo_id>/photo_detail')
+@main.route('/photo/<int:photo_id>/comment/')
 def photo_detail(item_id):
   photo = Photo.query.get_or_404(item_id)
   comments = Comment.query.filter_by(item_id=item_id).all()
   return render_template('photo_detail.html', photo=photo, comments=comments)
 
-@main.route('/add_comment/<int:item_id>', method=['POST'])
+@main.route('add_comment/<int:item_id>', method=['POST'])
 @login_required # Requires login authentication to perform action
 # TODO @csrf.exempt
 # TODO implement limiter
