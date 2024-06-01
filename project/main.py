@@ -13,14 +13,14 @@ import os
 ##### Added
 #########################
 from werkzeug.exceptions import InternalServerError
-from werkzeug.security import escape
+from werkzeug.utils import escape
 from flask_wtf.csrf import CSRFProtect
 #########################
 
 main = Blueprint('main', __name__)
 
 #Prevents CSRF attacks on the @main
-csrf = CSRFProtect(main)
+# TODO csrf = CSRFProtect(main)
 
 # This is called when the home page is rendered. It fetches all images sorted by filename.
 @main.route('/')
@@ -124,7 +124,7 @@ def photo_detail(item_id):
 
 @main.route('/add_comment/<int:item_id>', method=['POST'])
 @login_required # Requires login authentication to perform action
-@csrf.exempt
+# TODO @csrf.exempt
 # TODO implement limiter
 def add_comment(item_id):
   photo = Photo.query.get_or_404(item_id)
