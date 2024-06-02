@@ -34,6 +34,7 @@ def display_file(name):
 
 # TODO authorisation
 # Upload a new photo
+@login_required
 @main.route('/upload/', methods=['GET','POST'])
 def newPhoto():
   if request.method == 'POST':
@@ -50,7 +51,7 @@ def newPhoto():
     filepath = os.path.join(current_app.config["UPLOAD_DIR"], file.filename)
     file.save(filepath)
 
-    newPhoto = Photo(name = request.form['user'], 
+    newPhoto = Photo(name = current_user.name, 
                     caption = request.form['caption'],
                     description = request.form['description'],
                     file = file.filename)
@@ -63,6 +64,7 @@ def newPhoto():
 
 # TODO authorisation
 # This is called when clicking on Edit. Goes to the edit page.
+@login_required
 @main.route('/photo/<int:photo_id>/edit/', methods = ['GET', 'POST'])
 def editPhoto(photo_id):
   editedPhoto = db.session.query(Photo).filter_by(id = photo_id).one()
@@ -76,10 +78,19 @@ def editPhoto(photo_id):
       flash('Photo Successfully Edited %s' % editedPhoto.name)
       return redirect(url_for('main.homepage'))
   else:
-    return render_template('edit.html', photo = editedPhoto)
+    # TODO handle invalid user/ role
+    if (current_user.role == 'admin' or current_user.name == editedPhoto.name):
+      return render_template('edit.html', photo = editedPhoto)
+    else:
+      #TODO failure logic... stub, log the security issue
+      current_app.logger.warning("User: \""+ current_user.name +
+                                 "\" tried to edit another users photo.")
+    return redirect(url_for('main.profile'))
+      
 
 # TODO authorisation
-# This is called when clicking on Delete. 
+# This is called when clicking on Delete.
+@login_required
 @main.route('/photo/<int:photo_id>/delete/', methods = ['GET','POST'])
 def deletePhoto(photo_id):
   fileResults = db.session.execute(text('select file from photo where id = ' + str(photo_id)))

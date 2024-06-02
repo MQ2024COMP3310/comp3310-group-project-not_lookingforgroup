@@ -14,11 +14,13 @@
 
 {% block content %}
 
+{% if current_user.is_authenticated %}
 <div id="filter" class="filter-container">
   <div id="upload">
     <a href="{{ url_for('main.newPhoto') }}">Upload a photo</a>
   </div>
 </div>
+{% endif %}
 
 <div id="images" class="images-container" data-pagetype="{{ pagetype }}">
     {% for photo in photos %}
@@ -41,6 +43,7 @@
             </div>
 
             <div class="image-navigation-container">
+                {% if current_user.name == photo.name %}
                 <a href="{{ url_for('main.display_file', name=photo.file) }}" class="download" title="Download this photo" download>
                     <div class="icon-container highlight blue">
                         <img src="{{ url_for('static', filename='icons/download.png') }}" alt="download">
@@ -58,6 +61,7 @@
                       <img src="{{ url_for('static', filename='icons/delete.png') }}" title="Delete this photo" alt="delete">
                   </div>
               </a>
+              {% endif %}
               <!-- Broken feature atm,
                 TODO: Need a image
                 <a href="{{ url_for('main.commentNew', photo_id=photo.id) }}" title="Comment on this photo">
