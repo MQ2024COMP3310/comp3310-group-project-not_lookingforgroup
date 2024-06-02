@@ -4,7 +4,11 @@ from flask import (
   current_app, make_response
 )
 from flask_login import login_required, current_user
+<<<<<<< HEAD
 from .models import Photo, User, Comment
+=======
+from .models import Photo, Comment
+>>>>>>> 2655dbcd130bdd7ce4db762f96d96c8f21773051
 from sqlalchemy import asc, text
 from . import db
 import os
@@ -13,9 +17,14 @@ import os
 ##### Added
 #########################
 from werkzeug.exceptions import InternalServerError
+from werkzeug.utils import escape
+from flask_wtf.csrf import CSRFProtect
 #########################
 
 main = Blueprint('main', __name__)
+
+#Prevents CSRF attacks on the @main
+# TODO csrf = CSRFProtect(main)
 
 # This is called when the home page is rendered. It fetches all images sorted by filename.
 @main.route('/')
@@ -105,6 +114,14 @@ def profile():
 #  print(e)  # TODO Replace with logger
 #  return redirect(url_for('main.homepage'))
 
+#########################
+####### Comments Feature
+#########################
+@main.route('/photo/<int:photo_id>/comment/')
+def photo_detail(item_id):
+  photo = Photo.query.get_or_404(item_id)
+  comments = Comment.query.filter_by(item_id=item_id).all()
+  return render_template('photo_detail.html', photo=photo, comments=comments)
 
 ##### Comment stuff
 

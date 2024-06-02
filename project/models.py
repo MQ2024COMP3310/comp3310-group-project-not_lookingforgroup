@@ -8,6 +8,7 @@ class Photo(db.Model):
     caption = db.Column(db.String(250), nullable=False)
     file = db.Column(db.String(250), nullable=False)
     description = db.Column(db.String(600), nullable=True)
+    comments = db.relationship('Comment', backref = 'item', lazy = True)
 
     @property
     def serialize(self):
