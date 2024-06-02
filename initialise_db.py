@@ -1,5 +1,5 @@
 from project import db, create_app, models
-from project.models import Photo
+from project.models import Photo,Category
 
 def populate_db():
    
@@ -49,10 +49,23 @@ def populate_db():
     session.add(photo)
     session.commit()
 
+#######################################################
+#### ADDED Category Population function
+#######################################################
+def populate_categories():
+  categories = ["Nature", "Urban", "Portrait", "Sport"]
+  for category_name in categories:
+     if not Category.query.filter_by(name=category_name).first():
+        category = Category(name=category_name)
+        db.session.add(category)
+        db.session.commit()
+#######################################################
+
 if __name__ == '__main__':
   app = create_app()
   with app.app_context():
     db.drop_all()
     db.create_all()
     populate_db()
+    populate_categories()
 

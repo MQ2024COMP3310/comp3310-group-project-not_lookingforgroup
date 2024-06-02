@@ -41,3 +41,8 @@ class Comment(db.Model):
     photo = db.relationship(Photo)
     user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
     user = db.relationship(User)
+
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False, unique=True)
+    

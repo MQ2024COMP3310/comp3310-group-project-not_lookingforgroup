@@ -34,8 +34,8 @@ def display_file(name):
 
 # TODO authorisation
 # Upload a new photo
-@login_required
 @main.route('/upload/', methods=['GET','POST'])
+@login_required
 def newPhoto():
   if request.method == 'POST':
     file = None
@@ -64,8 +64,9 @@ def newPhoto():
 
 # TODO authorisation
 # This is called when clicking on Edit. Goes to the edit page.
-@login_required
+
 @main.route('/photo/<int:photo_id>/edit/', methods = ['GET', 'POST'])
+@login_required
 def editPhoto(photo_id):
   editedPhoto = db.session.query(Photo).filter_by(id = photo_id).one()
   if not (editedPhoto.name == current_user.name):
@@ -93,12 +94,15 @@ def editPhoto(photo_id):
 
 # TODO authorisation
 # This is called when clicking on Delete.
-@login_required
+
 @main.route('/photo/<int:photo_id>/delete/', methods = ['GET','POST'])
+@login_required
 def deletePhoto(photo_id):
   fileResults = db.session.execute(text('select file from photo where id = ' + str(photo_id)))
   if not(db.session.query(Photo).filter_by(id = photo_id).one().name == current_user.name or
          current_user.role == 'admin'):
+    current_app.logger.warning("User: \""+ current_user.name +
+                                 "\" tried to delete another users photo.")
     return redirect(url_for('main.homepage'))
   filename = fileResults.first()[0]
   filepath = os.path.join(current_app.config["UPLOAD_DIR"], filename)
@@ -157,9 +161,8 @@ def commentNew(photo_id):
     return redirect(url_for('main.commentShow', photo_id = photo_id))
   else:
     # TODO implement the html template
-    # return render_template('commentNew.html', photo = photo)
+    return render_template('commentNew.html', photo = photo)
     # Redirect stub for the moment
-    return redirect(url_for('main.commentShow', photo_id = photo_id))
 
 # TODO role limitations?
 @main.route('/photo/<int:photo_id>/comment/<int:comment_id>/edit', methods=['GET','POST'])
@@ -192,7 +195,9 @@ def commentDelete(photo_id, comment_id):
     return redirect(url_for('main.commentShow', photo_id = photo_id))
   else:
     # TODO render delete comment interface
-    x= 5
+    db.session.delete(comment)
+    db.session.commit()
+    return redirect(url_for('main.commentShow', photo_id = photo_id))
 
 
 @main.route('/photo/<int:photo_id>/comment/all')
