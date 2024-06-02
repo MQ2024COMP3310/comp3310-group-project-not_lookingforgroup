@@ -4,11 +4,7 @@ from flask import (
   current_app, make_response
 )
 from flask_login import login_required, current_user
-<<<<<<< HEAD
 from .models import Photo, User, Comment
-=======
-from .models import Photo, Comment
->>>>>>> 2655dbcd130bdd7ce4db762f96d96c8f21773051
 from sqlalchemy import asc, text
 from . import db
 import os
@@ -18,7 +14,7 @@ import os
 #########################
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import escape
-from flask_wtf.csrf import CSRFProtect
+# from flask_wtf.csrf import CSRFProtect
 #########################
 
 main = Blueprint('main', __name__)
@@ -105,7 +101,9 @@ def deletePhoto(photo_id):
 @main.route('/profile')
 @login_required
 def profile():
-  return render_template('profile.html', name=current_user.name)
+  # return render_template('profile.html', name=current_user.name)
+  photos = db.session.query(Photo).filter_by(name = current_user.name).order_by(asc(Photo.file))
+  return render_template('index.html', photos = photos)
 
 
 # Catches all server errors, prevents stack trace generation.
@@ -117,11 +115,11 @@ def profile():
 #########################
 ####### Comments Feature
 #########################
-@main.route('/photo/<int:photo_id>/comment/')
-def photo_detail(item_id):
-  photo = Photo.query.get_or_404(item_id)
-  comments = Comment.query.filter_by(item_id=item_id).all()
-  return render_template('photo_detail.html', photo=photo, comments=comments)
+#@main.route('/photo/<int:photo_id>/comment/')
+#def photo_detail(item_id):
+#  photo = Photo.query.get_or_404(item_id)
+#  comments = Comment.query.filter_by(item_id=item_id).all()
+#  return render_template('photo_detail.html', photo=photo, comments=comments)
 
 ##### Comment stuff
 
@@ -142,7 +140,9 @@ def commentNew(photo_id):
     return redirect(url_for('main.commentShow', photo_id = photo_id))
   else:
     # TODO implement the html template
-    return render_template('commentNew.html', photo = photo)
+    # return render_template('commentNew.html', photo = photo)
+    # Redirect stub for the moment
+    return redirect(url_for('main.commentShow', photo_id = photo_id))
 
 # TODO role limitations?
 @main.route('/photo/<int:photo_id>/comment/<int:comment_id>/edit', methods=['GET','POST'])
