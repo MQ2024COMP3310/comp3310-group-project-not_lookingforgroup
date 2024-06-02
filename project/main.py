@@ -100,10 +100,10 @@ def profile():
 
 
 # Catches all server errors, prevents stack trace generation.
-@main.errorhandler(Exception)
-def http_error_handler(e):
-  print(e)  # TODO Replace with logger
-  return redirect(url_for('main.homepage'))
+#@main.errorhandler(Exception)
+#def http_error_handler(e):
+#  print(e)  # TODO Replace with logger
+#  return redirect(url_for('main.homepage'))
 
 
 ##### Comment stuff
@@ -125,7 +125,7 @@ def commentNew(photo_id):
     return redirect(url_for('main.commentShow', photo_id = photo_id))
   else:
     # TODO implement the html template
-    return render_template('photocomments', photo_id = photo_id)
+    return render_template('commentNew.html', photo = photo)
 
 # TODO role limitations?
 @main.route('/photo/<int:photo_id>/comment/<int:comment_id>/edit', methods=['GET','POST'])
@@ -140,8 +140,9 @@ def commentEdit(photo_id, comment_id):
     db.session.add(comment)
     db.session.commit()
     return redirect(url_for('main.commentShow', photo_id = photo_id))
-  else
+  else:
     # TODO render edit comment interface
+    x= 5
 
 # TODO role limitations
 @main.route('/photo/<int:photo_id>/comment/<int:comment_id>/delete', methods=['GET','POST'])
@@ -155,8 +156,9 @@ def commentDelete(photo_id, comment_id):
     db.session.delete(comment)
     db.session.commit()
     return redirect(url_for('main.commentShow', photo_id = photo_id))
-  else
+  else:
     # TODO render delete comment interface
+    x= 5
 
 
 @main.route('/photo/<int:photo_id>/comment/all')
@@ -164,6 +166,6 @@ def commentShow(photo_id):
   photo = db.session.query(Photo).filter_by(id = photo_id).one()
   comment_thread = Comment.query.filter_by(photo_id = photo_id).all()
   # TODO render comment html (photo_id, comment_thread)
-  return render_template('commentShow.html',comment_thread)
+  return render_template('commentShow.html',photo = photo,comments=comment_thread)
 
 #########################

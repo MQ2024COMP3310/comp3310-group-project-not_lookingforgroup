@@ -1,11 +1,48 @@
 {% extends 'layouts/base.html' %}
 
 {% block title %}
-comments
+Image thread
 {% endblock title %}
 
 {% block heading %}
-Edit a photo
+Image thread
 {% endblock heading %}
 
 {% block content %}
+    <div class="image-box">
+        <img class="image" src="{{ url_for('main.display_file', name=photo.file) }}" alt="image">
+    </div>
+
+    {% if comments !=[] %}	
+		<div class="row">
+			<div class="col-md-1"></div>
+			<div class="col-md-10">
+					{% for c in comments %}
+                        <div class="menu-item">
+							<!-- Show name of commenter-->
+                            <h3>{{c.user.name}}</h3>
+							{% if c.user.role == 'admin' %}
+								<!-- Comment from admin will be marked as from admin -->
+								<p style="font-weight: bold; font-size: smaller; color: red"> Administrator</p>
+							{% endif %}
+							<!-- Show the comment -->
+                            <p>{{c.text}}</p>
+							<!-- Only show edit and delete button on the comments left by the current logged-in user -->
+							{% if current_user.id == c.user_id %}
+								<a href="{{url_for('main.commentEdit', photo_id = photo.id, comment_id= c.id) }}">Edit</a> | 
+								<a href="{{url_for('main.commentDelete', photo_id = photo.id, comment_id=c.id ) }}">Delete</a>
+							{% endif %}
+                        </div>
+					{% endfor %}
+			</div>
+    {% endif %}
+
+    <div class="row">
+		<div class="col-md-6 col-md-offset-1 padding-top">
+            <a href = "{{url_for('main.commentNew', photo_id = photo.id )}}">
+                <button class="btn btn-default">
+                <span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Add Comment </button>
+            </a>
+		</div>
+	</div>
+{% endblock content %}
