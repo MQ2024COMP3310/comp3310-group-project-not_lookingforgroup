@@ -164,5 +164,6 @@ def commentShow(photo_id):
   photo = db.session.query(Photo).filter_by(id = photo_id).one()
   comment_thread = Comment.query.filter_by(photo_id = photo_id).all()
   # TODO render comment html (photo_id, comment_thread)
+  return render_template('commentShow.html',comment_thread)
 
 #########################
