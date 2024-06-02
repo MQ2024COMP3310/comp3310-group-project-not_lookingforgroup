@@ -22,6 +22,23 @@
 </div>
 {% endif %}
 
+
+<div>
+<h2>Categories</h2>
+<form method="POST" action="{{ url_for('main.browse_images') }}">
+    <label for="category">Filter by Category:</label>
+    <select id="category" name="category">
+        <option value="">All</option>
+        {% for category in categories %}
+            <option value="{{ category.id }}" {% if category.id == selected_category %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+</form>
+</div>
+
 <div id="images" class="images-container" data-pagetype="{{ pagetype }}">
     {% for photo in photos %}
     <div class="image-box" data-id="{{photo.id}}">
@@ -43,7 +60,7 @@
             </div>
 
             <div class="image-navigation-container">
-                {% if current_user.name == photo.name %}
+                {% if current_user.name == photo.name or  current_user.role == 'admin'%}
                 <a href="{{ url_for('main.display_file', name=photo.file) }}" class="download" title="Download this photo" download>
                     <div class="icon-container highlight blue">
                         <img src="{{ url_for('static', filename='icons/download.png') }}" alt="download">

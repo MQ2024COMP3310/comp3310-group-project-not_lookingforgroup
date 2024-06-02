@@ -4,7 +4,7 @@ from flask import (
   current_app, make_response
 )
 from flask_login import login_required, current_user
-from .models import Photo, User, Comment
+from .models import Photo, User, Comment, Category
 from sqlalchemy import asc, text
 from . import db
 import os
@@ -51,16 +51,24 @@ def newPhoto():
     filepath = os.path.join(current_app.config["UPLOAD_DIR"], file.filename)
     file.save(filepath)
 
+    category = request.form.getlist('category')
+    category_objects = [db.session.query(Category).get(id) for id in category]
+    #selected_categories = request.form.getlist('categories')
+    #current_app.logger.warning(selected_categories)
+
+
     newPhoto = Photo(name = current_user.name, 
                     caption = request.form['caption'],
                     description = request.form['description'],
+                    category = category_objects,
                     file = file.filename)
     db.session.add(newPhoto)
     flash('New Photo %s Successfully Created' % newPhoto.name)
     db.session.commit()
     return redirect(url_for('main.homepage'))
   else:
-    return render_template('upload.html')
+    categories = db.session.query(Category)
+    return render_template('upload.html', categories = categories)
 
 # TODO authorisation
 # This is called when clicking on Edit. Goes to the edit page.
@@ -168,7 +176,7 @@ def commentNew(photo_id):
 @main.route('/photo/<int:photo_id>/comment/<int:comment_id>/edit', methods=['GET','POST'])
 @login_required
 def commentEdit(photo_id, comment_id):
-  # photo = db.session.query(Photo).filter_by(id = photo_id).one()
+  photo = db.session.query(Photo).filter_by(id = photo_id).one()
   comment = Comment.query.filter_by(id = comment_id).first()
   if not (current_user.id == comment.user_id):
     return redirect(url_for('main.commentShow', photo_id = photo_id))
@@ -179,7 +187,7 @@ def commentEdit(photo_id, comment_id):
     return redirect(url_for('main.commentShow', photo_id = photo_id))
   else:
     # TODO render edit comment interface
-    x= 5
+    return render_template('commentNew.html', photo = photo, comment = comment)
 
 # TODO role limitations
 @main.route('/photo/<int:photo_id>/comment/<int:comment_id>/delete', methods=['GET','POST'])
@@ -208,3 +216,21 @@ def commentShow(photo_id):
   return render_template('commentShow.html',photo = photo,comments=comment_thread)
 
 #########################
+#########################
+#### Search by Category Option
+#########################
+
+@main.route('/search/', methods=['POST'])
+def browse_images():
+    category_id = request.args.get('category')
+    if category_id:
+        category = Category.query.get(id)
+        if category:
+            photos = category.photo_id
+        else:
+            photos = []
+    else:
+        photos = Photo.query.all()
+    
+    categories = Category.query.all()
+    return render_template('index.html', photos=photos, categories=categories, selected_category=category_id)

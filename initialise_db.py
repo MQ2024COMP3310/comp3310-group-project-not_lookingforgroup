@@ -1,5 +1,6 @@
 from project import db, create_app, models
-from project.models import Photo,Category
+from project.models import Photo,Category,User
+from werkzeug.security import generate_password_hash
 
 def populate_db():
    
@@ -49,6 +50,13 @@ def populate_db():
     session.add(photo)
     session.commit()
 
+    admin = User(email= 'not@fake.com',
+              name='notadmin', 
+              password=generate_password_hash('notbad', method='scrypt'), 
+              role='admin')
+    session.add(admin)
+    session.commit()
+
 #######################################################
 #### ADDED Category Population function
 #######################################################
@@ -60,6 +68,8 @@ def populate_categories():
         db.session.add(category)
         db.session.commit()
 #######################################################
+
+
 
 if __name__ == '__main__':
   app = create_app()

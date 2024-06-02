@@ -8,7 +8,7 @@ class Photo(db.Model):
     caption = db.Column(db.String(250), nullable=False)
     file = db.Column(db.String(250), nullable=False)
     description = db.Column(db.String(600), nullable=True)
-    comments = db.relationship('Comment', backref = 'item', lazy = True)
+    category = db.relationship('Category', backref = 'photo_category', lazy = True)
 
     @property
     def serialize(self):
@@ -31,18 +31,20 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     # needed a role
-    role = db.Column(db.String())
+    role = db.Column(db.String(10))
 
 # Added model for comments
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(1000), nullable=False) # Twitter x4!
     photo_id = db.Column(db.Integer,db.ForeignKey('photo.id'))
-    photo = db.relationship(Photo)
+    photo = db.relationship('Photo', backref='photo_comments')
     user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
-    user = db.relationship(User)
+    user = db.relationship('User', backref='user_comments')
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False, unique=True)
+    photo_id = db.Column(db.Integer, db.ForeignKey('photo.id'))
     
+

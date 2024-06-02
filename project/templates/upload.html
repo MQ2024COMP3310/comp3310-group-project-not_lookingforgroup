@@ -41,10 +41,30 @@ Upload a photo
             required></textarea>
     </div>
 
+    <div class="input-container">
+        <label for="categories">Categories:</label>
+        <div id="categories" name="categories" required>
+            {% for category in categories %}
+                <input type="checkbox" id="category_{{ category.id }}" name="categories" value="{{ category.id }}">
+                <label for="category_{{ category.id }}">{{ category.name }}</label><br>
+            {% endfor %}
+        </div>
+        <br><br>
+    </div>
+        <!--
+        <div class="field">
+            <label class="checkbox">
+                <input type="checkbox" name="remember">
+                Remember me
+            </label>
+        </div>-->
+
     <div class="input-container button green">
         <input type="submit" value="Upload">
         <a href="{{ url_for('main.homepage') }}">Cancel</a>
     </div>
+
+
 </form>
 {% endblock content %}
 

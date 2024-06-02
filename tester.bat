@@ -1,0 +1,2 @@
+pytest
+cmd -k
