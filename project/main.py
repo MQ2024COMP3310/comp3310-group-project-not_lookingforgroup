@@ -4,7 +4,7 @@ from flask import (
   current_app, make_response
 )
 from flask_login import login_required, current_user
-from .models import Photo
+from .models import Photo, User, Comment
 from sqlalchemy import asc, text
 from . import db
 import os
@@ -106,6 +106,63 @@ def http_error_handler(e):
   return redirect(url_for('main.homepage'))
 
 
+##### Comment stuff
 
+  # TODO Should this become a function?
+  # return db.session.query(Photo).filter_by(id = photo_id).one()
+
+# TODO role based access control?
+@main.route('/photo/<int:photo_id>/comment/', methods=['GET','POST'])
+@login_required
+def commentNew(photo_id):
+  photo = db.session.query(Photo).filter_by(id = photo_id).one()
+  if request.method == 'POST':
+    new_comment = Comment(text = request.form['text'], 
+                          photo_id = photo_id, 
+                          user_id = current_user.id)
+    db.session.add(new_comment)
+    db.session.commit()
+    return redirect(url_for('main.commentShow', photo_id = photo_id))
+  else:
+    # TODO implement the html template
+    return render_template('photocomments', photo_id = photo_id)
+
+# TODO role limitations?
+@main.route('/photo/<int:photo_id>/comment/<int:comment_id>/edit', methods=['GET','POST'])
+@login_required
+def commentEdit(photo_id, comment_id):
+  # photo = db.session.query(Photo).filter_by(id = photo_id).one()
+  comment = Comment.query.filter_by(id = comment_id).first()
+  if not (current_user.id == comment.user_id):
+    return redirect(url_for('main.commentShow', photo_id = photo_id))
+  if (request.method == 'POST' and request.form['text']):
+    comment.text = request.form['text']
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for('main.commentShow', photo_id = photo_id))
+  else
+    # TODO render edit comment interface
+
+# TODO role limitations
+@main.route('/photo/<int:photo_id>/comment/<int:comment_id>/delete', methods=['GET','POST'])
+@login_required
+def commentDelete(photo_id, comment_id):
+  comment = Comment.query.filter_by(id = comment_id).first()
+
+  if not (current_user.id == comment.user_id):
+    return redirect(url_for('main.commentShow', photo_id = photo_id))
+  if (request.method == 'POST'):
+    db.session.delete(comment)
+    db.session.commit()
+    return redirect(url_for('main.commentShow', photo_id = photo_id))
+  else
+    # TODO render delete comment interface
+
+
+@main.route('/photo/<int:photo_id>/comment/all')
+def commentShow(photo_id):
+  photo = db.session.query(Photo).filter_by(id = photo_id).one()
+  comment_thread = Comment.query.filter_by(photo_id = photo_id).all()
+  # TODO render comment html (photo_id, comment_thread)
 
 #########################

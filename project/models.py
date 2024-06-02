@@ -22,9 +22,21 @@ class Photo(db.Model):
  
  # Added model to store user data
  # TODO implement admin roles.
- # TODO implement a default user session
+ # TODO implement a default user session role
+ # TODO since default roles will exist, role based access controls are needed
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
+    # needed a role
+    role = db.Column(db.String())
+
+# Added model for comments
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(1000), nullable=False) # Twitter x4!
+    photo_id = db.Column(db.Integer,db.ForeignKey('photo.id'))
+    photo = db.relationship(Photo)
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
+    user = db.relationship(User)
