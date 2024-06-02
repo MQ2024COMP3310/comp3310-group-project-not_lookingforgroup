@@ -1,3 +1,5 @@
+# Reviewed by Adrian
+
 from project import db, create_app, models
 from project.models import Photo,Category,User
 from werkzeug.security import generate_password_hash
@@ -50,6 +52,8 @@ def populate_db():
     session.add(photo)
     session.commit()
 
+    # This is an insecure admin, we need atleast one admin to get started.
+    # TODO Session depedant admin with
     admin = User(email= 'not@fake.com',
               name='notadmin', 
               password=generate_password_hash('notbad', method='scrypt'), 

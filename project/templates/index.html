@@ -22,9 +22,7 @@
 </div>
 {% endif %}
 
-
 <div>
-<h2>Categories</h2>
 <form method="POST" action="{{ url_for('main.browse_images') }}">
     <label for="category">Filter by Category:</label>
     <select id="category" name="category">
@@ -87,7 +85,8 @@
                     </div>
                 </a> -->
                 <a href="{{ url_for('main.commentShow', photo_id=photo.id) }}" title="Comment this photo">
-                    <div class="icon-container highlight yellow"> <!-- TODO css the color... -->
+                    <!-- TODO css the color... -->
+                    <div class="icon-container highlight yellow"> 
                         <img src="{{ url_for('static', filename='icons/edit.png') }}" title="Comment this photo" alt="comment">
                     </div>
                 </a>

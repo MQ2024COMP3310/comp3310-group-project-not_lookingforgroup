@@ -14,12 +14,14 @@ import os
 #########################
 from werkzeug.exceptions import InternalServerError
 from werkzeug.utils import escape
+
+# TODO implement CSRF protection through flask-WTF library
 # from flask_wtf.csrf import CSRFProtect
 #########################
 
 main = Blueprint('main', __name__)
 
-#Prevents CSRF attacks on the @main
+# Prevents CSRF attacks on the @main
 # TODO csrf = CSRFProtect(main)
 
 # This is called when the home page is rendered. It fetches all images sorted by filename.
@@ -32,7 +34,7 @@ def homepage():
 def display_file(name):
   return send_from_directory(current_app.config["UPLOAD_DIR"], name)
 
-# TODO authorisation
+# TODO authorisation 
 # Upload a new photo
 @main.route('/upload/', methods=['GET','POST'])
 @login_required
@@ -53,9 +55,6 @@ def newPhoto():
 
     category = request.form.getlist('category')
     category_objects = [db.session.query(Category).get(id) for id in category]
-    #selected_categories = request.form.getlist('categories')
-    #current_app.logger.warning(selected_categories)
-
 
     newPhoto = Photo(name = current_user.name, 
                     caption = request.form['caption'],
@@ -70,9 +69,7 @@ def newPhoto():
     categories = db.session.query(Category)
     return render_template('upload.html', categories = categories)
 
-# TODO authorisation
 # This is called when clicking on Edit. Goes to the edit page.
-
 @main.route('/photo/<int:photo_id>/edit/', methods = ['GET', 'POST'])
 @login_required
 def editPhoto(photo_id):
@@ -94,15 +91,13 @@ def editPhoto(photo_id):
     if (current_user.role == 'admin' or current_user.name == editedPhoto.name):
       return render_template('edit.html', photo = editedPhoto)
     else:
-      #TODO failure logic... stub, log the security issue
+    #TODO failure logic... stub, log the security issue
       current_app.logger.warning("User: \""+ current_user.name +
                                  "\" tried to edit another users photo.")
       return redirect(url_for('main.profile'))
       
 
-# TODO authorisation
 # This is called when clicking on Delete.
-
 @main.route('/photo/<int:photo_id>/delete/', methods = ['GET','POST'])
 @login_required
 def deletePhoto(photo_id):
@@ -121,10 +116,6 @@ def deletePhoto(photo_id):
   flash('Photo id %s Successfully Deleted' % photo_id)
   return redirect(url_for('main.homepage'))
 
-#########################
-##### Added
-#########################
-
 # Stub for user only content.
 # Could display all photos uploaded by the user.
 @main.route('/profile')
@@ -141,21 +132,12 @@ def profile():
 #  print(e)  # TODO Replace with logger
 #  return redirect(url_for('main.homepage'))
 
-#########################
-####### Comments Feature
-#########################
-#@main.route('/photo/<int:photo_id>/comment/')
-#def photo_detail(item_id):
-#  photo = Photo.query.get_or_404(item_id)
-#  comments = Comment.query.filter_by(item_id=item_id).all()
-#  return render_template('photo_detail.html', photo=photo, comments=comments)
+####################### 
+#####Comment stuff
+#######################
 
-##### Comment stuff
 
-  # TODO Should this become a function?
-  # return db.session.query(Photo).filter_by(id = photo_id).one()
-
-# TODO role based access control?
+# TODO role based access control (admins can lock threads)
 @main.route('/photo/<int:photo_id>/comment/', methods=['GET','POST'])
 @login_required
 def commentNew(photo_id):
@@ -172,7 +154,8 @@ def commentNew(photo_id):
     return render_template('commentNew.html', photo = photo)
     # Redirect stub for the moment
 
-# TODO role limitations?
+# editing comments
+# TODO role limitations(Admins needed the ability to delete comments)?
 @main.route('/photo/<int:photo_id>/comment/<int:comment_id>/edit', methods=['GET','POST'])
 @login_required
 def commentEdit(photo_id, comment_id):
@@ -189,7 +172,7 @@ def commentEdit(photo_id, comment_id):
     # TODO render edit comment interface
     return render_template('commentNew.html', photo = photo, comment = comment)
 
-# TODO role limitations
+# TODO role limitations (partially impemented wanted to give admins more power)
 @main.route('/photo/<int:photo_id>/comment/<int:comment_id>/delete', methods=['GET','POST'])
 @login_required
 def commentDelete(photo_id, comment_id):
@@ -207,19 +190,21 @@ def commentDelete(photo_id, comment_id):
     db.session.commit()
     return redirect(url_for('main.commentShow', photo_id = photo_id))
 
-
+# Comments landing page, alows users to enter comments
 @main.route('/photo/<int:photo_id>/comment/all')
 def commentShow(photo_id):
   photo = db.session.query(Photo).filter_by(id = photo_id).one()
   comment_thread = Comment.query.filter_by(photo_id = photo_id).all()
-  # TODO render comment html (photo_id, comment_thread)
   return render_template('commentShow.html',photo = photo,comments=comment_thread)
 
 #########################
+
 #########################
 #### Search by Category Option
 #########################
 
+# Filtering functionality.
+# Intended to filter all images by categories.
 @main.route('/search/', methods=['POST'])
 def browse_images():
     category_id = request.args.get('category')

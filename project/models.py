@@ -33,7 +33,7 @@ class User(UserMixin, db.Model):
     # needed a role
     role = db.Column(db.String(10))
 
-# Added model for comments
+# Added model for comments table
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(1000), nullable=False) # Twitter x4!
@@ -42,6 +42,7 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer,db.ForeignKey('user.id'))
     user = db.relationship('User', backref='user_comments')
 
+# Added model for categories table
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False, unique=True)
