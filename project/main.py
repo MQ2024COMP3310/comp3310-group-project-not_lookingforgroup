@@ -68,8 +68,10 @@ def newPhoto():
 @main.route('/photo/<int:photo_id>/edit/', methods = ['GET', 'POST'])
 def editPhoto(photo_id):
   editedPhoto = db.session.query(Photo).filter_by(id = photo_id).one()
+  if not (editedPhoto.name == current_user.name):
+    return redirect(url_for('main.profile'))
   if request.method == 'POST':
-    if request.form['user']:
+    if request.form['user'] == current_user.name:
       editedPhoto.name = request.form['user']
       editedPhoto.caption = request.form['caption']
       editedPhoto.description = request.form['description']
@@ -77,6 +79,7 @@ def editPhoto(photo_id):
       db.session.commit()
       flash('Photo Successfully Edited %s' % editedPhoto.name)
       return redirect(url_for('main.homepage'))
+    return redirect(url_for('main.profile'))
   else:
     # TODO handle invalid user/ role
     if (current_user.role == 'admin' or current_user.name == editedPhoto.name):
@@ -85,7 +88,7 @@ def editPhoto(photo_id):
       #TODO failure logic... stub, log the security issue
       current_app.logger.warning("User: \""+ current_user.name +
                                  "\" tried to edit another users photo.")
-    return redirect(url_for('main.profile'))
+      return redirect(url_for('main.profile'))
       
 
 # TODO authorisation
@@ -94,6 +97,9 @@ def editPhoto(photo_id):
 @main.route('/photo/<int:photo_id>/delete/', methods = ['GET','POST'])
 def deletePhoto(photo_id):
   fileResults = db.session.execute(text('select file from photo where id = ' + str(photo_id)))
+  if not(db.session.query(Photo).filter_by(id = photo_id).one().name == current_user.name or
+         current_user.role == 'admin'):
+    return redirect(url_for('main.homepage'))
   filename = fileResults.first()[0]
   filepath = os.path.join(current_app.config["UPLOAD_DIR"], filename)
   os.unlink(filepath)
